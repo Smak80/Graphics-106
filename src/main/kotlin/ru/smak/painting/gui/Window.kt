@@ -15,6 +15,7 @@ import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JSpinner
+import javax.swing.SpinnerNumberModel
 import javax.swing.border.EtchedBorder
 
 class Window : JFrame(){
@@ -30,6 +31,10 @@ class Window : JFrame(){
     private val lblYMax: JLabel
     private val spYMax: JSpinner
 
+    private val mdlXMin: SpinnerNumberModel
+    private val mdlXMax: SpinnerNumberModel
+    private val mdlYMin: SpinnerNumberModel
+    private val mdlYMax: SpinnerNumberModel
 
     init{
         defaultCloseOperation = EXIT_ON_CLOSE
@@ -50,6 +55,42 @@ class Window : JFrame(){
                 mainPanel.repaint()
             }
         })
+
+        lblXMin = JLabel("XMin: ")
+        lblXMax = JLabel("XMax: ")
+        lblYMin = JLabel("YMin: ")
+        lblYMax = JLabel("YMax: ")
+
+        mdlXMin = SpinnerNumberModel(-5.0, -100.0, 4.9, 0.1)
+        mdlXMax = SpinnerNumberModel(5.0, -4.9, 100.0, 0.1)
+        mdlYMin = SpinnerNumberModel(-5.0, -100.0, 4.9, 0.1)
+        mdlYMax = SpinnerNumberModel(5.0, -4.9, 100.0, 0.1)
+
+        mdlXMin.addChangeListener{
+            mdlXMax.minimum = mdlXMin.value as Double + 0.1
+            cp.plane?.xMin = mdlXMin.value as Double
+            mainPanel.repaint()
+        }
+        mdlXMax.addChangeListener {
+            mdlXMin.maximum = mdlXMax.value as Double - 0.1
+            cp.plane?.xMax = mdlXMax.value as Double
+            mainPanel.repaint()
+        }
+        mdlYMin.addChangeListener{
+            mdlYMax.minimum = mdlYMin.value as Double + 0.1
+            cp.plane?.yMin = mdlYMin.value as Double
+            mainPanel.repaint()
+        }
+        mdlYMax.addChangeListener {
+            mdlYMin.maximum = mdlYMax.value as Double - 0.1
+            cp.plane?.yMax = mdlYMax.value as Double
+            mainPanel.repaint()
+        }
+
+        spXMin = JSpinner(mdlXMin)
+        spXMax = JSpinner(mdlXMax)
+        spYMin = JSpinner(mdlYMin)
+        spYMax = JSpinner(mdlYMax)
 
         controlPanel = JPanel().apply {
             border = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED)
@@ -74,7 +115,49 @@ class Window : JFrame(){
                     .addGap(8)
             )
         }
+        controlPanel.layout = GroupLayout(controlPanel).apply {
+            setVerticalGroup(
+                createSequentialGroup()
+                    .addGap(8)
+                    .addGroup( createParallelGroup(GroupLayout.Alignment.CENTER)
+                        .addComponent(lblXMin, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+                        .addComponent(spXMin, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+                        .addComponent(lblXMax, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+                        .addComponent(spXMax, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+                    )
+                    .addGap(8)
+                    .addGroup( createParallelGroup(GroupLayout.Alignment.CENTER)
+                        .addComponent(lblYMin, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+                        .addComponent(spYMin, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+                        .addComponent(lblYMax, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+                        .addComponent(spYMax, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+                    )
+                    .addGap(8)
+            )
+            setHorizontalGroup(
+                createSequentialGroup()
+                    .addGap(8)
+                    .addGroup(createParallelGroup()
+                        .addGroup(createSequentialGroup()
+                            .addComponent(lblXMin, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+                            .addComponent(spXMin, 75, PREFERRED_SIZE, PREFERRED_SIZE)
+                            .addGap(8)
+                            .addComponent(lblXMax, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+                            .addComponent(spXMax, 75, PREFERRED_SIZE, PREFERRED_SIZE)
+                        )
+                        .addGroup(createSequentialGroup()
+                            .addComponent(lblYMin, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+                            .addComponent(spYMin, 75, PREFERRED_SIZE, PREFERRED_SIZE)
+                            .addGap(8)
+                            .addComponent(lblYMax, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+                            .addComponent(spYMax, 75, PREFERRED_SIZE, PREFERRED_SIZE)
+                        )
+                    )
+                    .addGap(8, 8, Int.MAX_VALUE)
+
+            )
+        }
         pack()
-        cp.plane = Plane(-3.0, 6.0, -4.0, 3.0, mainPanel.width, mainPanel.height)
+        cp.plane = Plane(mdlXMin.value as Double, mdlXMax.value as Double, mdlYMin.value as Double, mdlYMax.value as Double, mainPanel.width, mainPanel.height)
     }
 }
